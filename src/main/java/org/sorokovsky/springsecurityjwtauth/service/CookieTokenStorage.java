@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequestScope
 @Setter
 public class CookieTokenStorage implements TokenStorage {
-    private String cookieName = "_Host-9YBIonpHN6itWA1YUONStq4aMseuNpB6";
+    private String cookieName = "__Host-9YBIonpHN6itWA1YUONStq4aMseuNpB6";
     private final HttpServletRequest request;
     private final HttpServletResponse response;
     private final TokenSerializer serializer;
