@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: spring-security-jwt-auth
+  datasource:
+    password: postgres
+    username: postgres
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5430/postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+token:
+  secret-key: '{"kty": "oct", "alg": "HS256", "k": "054FQ3Ftxpj5pHvsCXMcANY5FRC5yWj3oYqu2zdhCBHqa8rJ8X6wEi73sTn1CvxtuaGMWd1ifqSMKE8JQS7X6WGtItyRNYmD", "kid": "jwt-auth"}'
