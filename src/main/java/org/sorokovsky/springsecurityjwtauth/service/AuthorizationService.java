@@ -50,6 +50,17 @@ public class AuthorizationService {
         }
     }
 
+    public boolean isAuthenticated() {
+        final var accessToken = bearerTokenStorage.get().orElse(null);
+        if(accessToken != null) return true;
+        final var refreshToken = cookieTokenStorage.get().orElse(null);
+        if(refreshToken == null) return false;
+        final var userCandidate = usersService.findByEmail(refreshToken.email());
+        if(userCandidate.isEmpty()) return false;
+        authenticate(userCandidate.get());
+        return true;
+    }
+
     private void authenticate(UserEntity user) {
         final var accessToken = tokenService.generateAccessToken(user);
         final var refreshToken = tokenService.generateRefreshToken(user);

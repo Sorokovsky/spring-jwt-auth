@@ -5,14 +5,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.sorokovsky.springsecurityjwtauth.contract.Token;
 import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
+import org.sorokovsky.springsecurityjwtauth.exception.TokenNotParsedException;
 import org.sorokovsky.springsecurityjwtauth.serializer.TokenSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.Optional;
 
-@Service("bearer-storage")
+@Qualifier("bearer-storage")
+@Service
 @RequiredArgsConstructor
 @RequestScope
 public class BearerTokenStorage implements TokenStorage{
@@ -29,7 +32,11 @@ public class BearerTokenStorage implements TokenStorage{
             return Optional.empty();
         } else {
             final var stringToken = authorization.substring(BEARER.length());
-            return Optional.ofNullable(deserializer.apply(stringToken));
+            try {
+                return Optional.ofNullable(deserializer.apply(stringToken));
+            } catch (TokenNotParsedException _) {
+                return Optional.empty();
+            }
         }
     }
 

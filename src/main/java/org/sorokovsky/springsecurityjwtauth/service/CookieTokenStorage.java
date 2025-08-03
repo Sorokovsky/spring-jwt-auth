@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.sorokovsky.springsecurityjwtauth.contract.Token;
 import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
+import org.sorokovsky.springsecurityjwtauth.exception.TokenNotParsedException;
 import org.sorokovsky.springsecurityjwtauth.serializer.TokenSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -15,7 +17,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Optional;
 
-@Service("cookie-storage")
+@Qualifier("cookie-storage")
+@Service
 @RequiredArgsConstructor
 @RequestScope
 @Setter
@@ -34,7 +37,11 @@ public class CookieTokenStorage implements TokenStorage {
                 .orElse(null);
         if(cookie == null) return Optional.empty();
         final var tokenString = cookie.getValue();
-        return Optional.ofNullable(deserializer.apply(tokenString));
+        try {
+            return Optional.ofNullable(deserializer.apply(tokenString));
+        } catch (TokenNotParsedException _) {
+            return Optional.empty();
+        }
     }
 
     @Override
