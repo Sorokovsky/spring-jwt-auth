@@ -42,7 +42,8 @@ public class AuthorizationService {
 
     public UserEntity login(LoginPayload payload) {
         final var candidate = usersService.findByEmail(payload.email()).orElseThrow(UserNotFoundException::new);
-        if(passwordEncoder.matches(payload.password(), candidate.getPassword())) {
+        final var isPasswordCorrect = passwordEncoder.matches(payload.password(), candidate.getPassword());
+        if(isPasswordCorrect) {
             authenticate(candidate);
             return candidate;
         } else {

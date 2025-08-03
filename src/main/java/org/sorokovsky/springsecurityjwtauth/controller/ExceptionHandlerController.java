@@ -20,25 +20,25 @@ public class ExceptionHandlerController {
 
     @ExceptionHandler({TokenNotParsedException.class})
     public ResponseEntity<?> handleTokenNotParsedException(TokenNotParsedException exception) {
-        LOGGER.error(exception.getMessage(), exception);
+        LOGGER.error(exception.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Failed access.");
     }
 
     @ExceptionHandler({TokenNotSerializedException.class})
     public ResponseEntity<?> handleTokenNotSerializedException(TokenNotSerializedException exception) {
-        LOGGER.error(exception.getMessage(), exception);
+        LOGGER.error(exception.getMessage());
         return ResponseEntity.internalServerError().body("Failed authentication, try again.");
     }
 
     @ExceptionHandler({UserNotFoundException.class})
     public ResponseEntity<?> handleUserNotFoundException(UserNotFoundException exception) {
-        LOGGER.error(exception.getMessage(), exception);
+        LOGGER.error(exception.getMessage());
         return ResponseEntity.badRequest().body("Invalid email or password.");
     }
 
     @ExceptionHandler({InvalidPasswordException.class})
     public ResponseEntity<?> handleInvalidPasswordException(InvalidPasswordException exception) {
-        LOGGER.error(exception.getMessage(), exception);
+        LOGGER.error(exception.getMessage());
         return ResponseEntity.badRequest().body("Invalid email or password.");
     }
 }

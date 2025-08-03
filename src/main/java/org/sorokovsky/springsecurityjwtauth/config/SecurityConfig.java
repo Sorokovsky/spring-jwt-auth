@@ -17,7 +17,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(manager -> manager
-                        .anyRequest().permitAll()
+                        .requestMatchers("authorization/register", "/authorization/login").anonymous()
+                        .requestMatchers("/authorization/logout", "/authorization/me").authenticated()
+                        .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
