@@ -31,8 +31,10 @@ public class CookieTokenStorage implements TokenStorage {
 
     @Override
     public Optional<Token> get() {
+        final var cookies = request.getCookies();
+        if (cookies == null) return Optional.empty();
         final var cookie = Arrays
-                .stream(request.getCookies()).filter(item -> item.getName().equals(cookieName))
+                .stream(cookies).filter(item -> item.getName().equals(cookieName))
                 .findFirst()
                 .orElse(null);
         if(cookie == null) return Optional.empty();
