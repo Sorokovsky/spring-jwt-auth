@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
@@ -51,19 +49,6 @@ public class AuthorizationService {
         } else {
             throw new InvalidPasswordException();
         }
-    }
-
-    public Optional<UserEntity> isAuthenticated() {
-        final var accessToken = bearerTokenStorage.get().orElse(null);
-        if(accessToken != null) {
-            return usersService.findByEmail(accessToken.email());
-        }
-        final var refreshToken = cookieTokenStorage.get().orElse(null);
-        if(refreshToken == null) return Optional.empty();
-        final var userCandidate = usersService.findByEmail(refreshToken.email());
-        if(userCandidate.isEmpty()) return Optional.empty();
-        authenticate(userCandidate.get());
-        return userCandidate;
     }
 
     private void authenticate(UserEntity user) {

@@ -1,9 +1,9 @@
 version: '3.8'
 services:
-  database:
+  jwt-auth.database:
     image: postgres:17-alpine
     restart: always
-    container_name: database
+    container_name: jwt-auth.database
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
@@ -12,6 +12,5 @@ services:
       - "5430:5432"
     volumes:
       - database_data:/var/lib/postgresql/data
-
 volumes:
   database_data:
