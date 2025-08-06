@@ -1,10 +1,7 @@
 package org.sorokovsky.springsecurityjwtauth.serializer;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jose.*;
+import com.nimbusds.jwt.EncryptedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.sorokovsky.springsecurityjwtauth.contract.Token;
@@ -12,19 +9,20 @@ import org.sorokovsky.springsecurityjwtauth.exception.TokenNotSerializedExceptio
 
 @RequiredArgsConstructor
 @Setter
-public class JwsTokenSerializer extends JwtTokenSerializer {
-    private final JWSSigner signer;
-    private JWSAlgorithm algorithm = JWSAlgorithm.HS256;
+public class JweTokenSerializer extends JwtTokenSerializer {
+    private final JWEEncrypter encrypter;
+    private EncryptionMethod encryptionMethod = EncryptionMethod.A128GCM;
+    private JWEAlgorithm algorithm = JWEAlgorithm.A192KW;
 
     @Override
     public String apply(Token token) {
-        final var header = new JWSHeader.Builder(algorithm)
+        final var header = new JWEHeader.Builder(algorithm, encryptionMethod)
                 .keyID(token.id().toString())
                 .build();
-        final var signed = new SignedJWT(header, buildClaims(token));
         try {
-            signed.sign(signer);
-            return signed.serialize();
+            final var encrypted = new EncryptedJWT(header, buildClaims(token));
+            encrypted.encrypt(encrypter);
+            return encrypted.serialize();
         } catch (JOSEException exception) {
             throw new TokenNotSerializedException(exception.getMessage(), exception);
         }

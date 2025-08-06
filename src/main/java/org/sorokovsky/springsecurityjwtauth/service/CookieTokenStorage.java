@@ -4,53 +4,44 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.sorokovsky.springsecurityjwtauth.contract.Token;
-import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
-import org.sorokovsky.springsecurityjwtauth.exception.TokenNotParsedException;
-import org.sorokovsky.springsecurityjwtauth.serializer.TokenSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-@Qualifier("cookie-storage")
 @Service
-@RequiredArgsConstructor
 @RequestScope
-@Setter
+@RequiredArgsConstructor
+@Qualifier("cookie-storage")
 public class CookieTokenStorage implements TokenStorage {
-    private String cookieName = "__Host-9YBIonpHN6itWA1YUONStq4aMseuNpB6";
+    private static final String COOKIE_NAME = "__Host-o9uJOloVn7IBYwYoqPWZHnhqVEbNavAC";
+
     private final HttpServletRequest request;
     private final HttpServletResponse response;
-    private final TokenSerializer serializer;
-    private final TokenDeserializer deserializer;
+    @Qualifier("refresh-lifetime")
+    private final Duration lifetime;
 
     @Override
-    public Optional<Token> get() {
+    public Optional<String> get() {
         final var cookies = request.getCookies();
         if (cookies == null) return Optional.empty();
-        final var cookie = Arrays
-                .stream(cookies).filter(item -> item.getName().equals(cookieName))
-                .findFirst()
-                .orElse(null);
-        if(cookie == null) return Optional.empty();
-        final var tokenString = cookie.getValue();
-        try {
-            return Optional.ofNullable(deserializer.apply(tokenString));
-        } catch (TokenNotParsedException _) {
-            return Optional.empty();
-        }
+        final var needCookie = Stream.of(cookies)
+                .filter(cookie -> COOKIE_NAME.equals(cookie.getName()))
+                .findFirst().orElse(null);
+        if (needCookie == null) return Optional.empty();
+        return Optional.of(needCookie.getValue());
     }
 
     @Override
-    public void set(Token token) {
-        final var stringToken = serializer.apply(token);
-        final var maxAge = (int) ChronoUnit.SECONDS.between(token.createdAt(), token.expiresAt());
-        set(stringToken, maxAge);
+    public void set(String token) {
+        final var now = Instant.now();
+        final var maxAge = (int) ChronoUnit.SECONDS.between(now, now.plus(lifetime));
+        set(token, maxAge);
     }
 
     @Override
@@ -59,12 +50,13 @@ public class CookieTokenStorage implements TokenStorage {
     }
 
     private void set(String value, int maxAge) {
-        final var cookie = new Cookie(cookieName, value);
+        final var cookie = new Cookie(COOKIE_NAME, value);
         cookie.setMaxAge(maxAge);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setDomain(null);
+        cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
     }
 }

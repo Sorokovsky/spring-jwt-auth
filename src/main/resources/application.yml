@@ -10,4 +10,5 @@ spring:
     hibernate:
       ddl-auto: update
 token:
-  secret-key: '{"kty": "oct", "k": "054FQ3Ftxpj5pHvsCXMcANY5FRC5yWj3oYqu2zdhCBHqa8rJ8X6wEi73sTn1CvxtuaGMWd1ifqSMKE8JQS7X6WGtItyRNYmD", "kid": "jwt-auth"}'
+  signing-key: '{"kty": "oct", "k": "054FQ3Ftxpj5pHvsCXMcANY5FRC5yWj3oYqu2zdhCBHqa8rJ8X6wEi73sTn1CvxtuaGMWd1ifqSMKE8JQS7X6WGtItyRNYmD"}'
+  encryption-key: '{"kty": "oct", "k": "054FQ3Ftxpj5pHvsCXMcANY5FRC5yWj3oYqu2zdhCBHqa8rJ8X6wEi73sTn1CvxtuaGMWd1ifqSMKE8JQS7X6WGtItyRNYmD"}'

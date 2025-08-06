@@ -3,10 +3,6 @@ package org.sorokovsky.springsecurityjwtauth.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.sorokovsky.springsecurityjwtauth.contract.Token;
-import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
-import org.sorokovsky.springsecurityjwtauth.exception.TokenNotParsedException;
-import org.sorokovsky.springsecurityjwtauth.serializer.TokenSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -14,36 +10,26 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.Optional;
 
-@Qualifier("bearer-storage")
 @Service
-@RequiredArgsConstructor
 @RequestScope
-public class BearerTokenStorage implements TokenStorage{
-    private final static String BEARER = "Bearer ";
+@RequiredArgsConstructor
+@Qualifier("bearer-storage")
+public class BearerTokenStorage implements TokenStorage {
+    private static final String BEARER = "Bearer ";
+
     private final HttpServletRequest request;
     private final HttpServletResponse response;
-    private final TokenDeserializer deserializer;
-    private final TokenSerializer serializer;
 
     @Override
-    public Optional<Token> get() {
+    public Optional<String> get() {
         final var authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(authorization == null || !authorization.startsWith(BEARER)) {
-            return Optional.empty();
-        } else {
-            final var stringToken = authorization.substring(BEARER.length());
-            try {
-                return Optional.ofNullable(deserializer.apply(stringToken));
-            } catch (TokenNotParsedException _) {
-                return Optional.empty();
-            }
-        }
+        if (authorization == null || !authorization.startsWith(BEARER)) return Optional.empty();
+        return Optional.of(authorization.substring(BEARER.length()));
     }
 
     @Override
-    public void set(Token token) {
-        final var stringToken = serializer.apply(token);
-        response.setHeader(HttpHeaders.AUTHORIZATION, BEARER + stringToken);
+    public void set(String token) {
+        response.setHeader(HttpHeaders.AUTHORIZATION, BEARER + token);
     }
 
     @Override
