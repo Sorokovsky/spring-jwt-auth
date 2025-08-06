@@ -2,6 +2,7 @@ package org.sorokovsky.springsecurityjwtauth.configuration;
 
 import org.sorokovsky.springsecurityjwtauth.configurer.JwtAuthenticationConfigurer;
 import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
+import org.sorokovsky.springsecurityjwtauth.entrypoint.BearerAuthenticationEntryPoint;
 import org.sorokovsky.springsecurityjwtauth.service.PreAuthenticationUserDetailsService;
 import org.sorokovsky.springsecurityjwtauth.service.TokenStorage;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +32,14 @@ public class SecurityConfiguration {
         final var jwtAccessConfigurer = new JwtAuthenticationConfigurer();
         jwtAccessConfigurer.setAccessTokenDeserializer(accessTokenDeserializer);
         jwtAccessConfigurer.setAccessTokenStorage(accessTokenStorage);
+        jwtAccessConfigurer.setAuthenticationEntryPoint(new BearerAuthenticationEntryPoint());
         http
+                .authorizeHttpRequests(configuration -> configuration
+                        .requestMatchers("/authentication/register", "/authentication/login").anonymous()
+                        .requestMatchers("/authentication/get-me", "/authentication/logout").authenticated()
+                        .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .sessionManagement(configuration -> configuration
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

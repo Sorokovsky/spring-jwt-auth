@@ -18,7 +18,6 @@ public class PreAuthenticationUserDetailsService implements AuthenticationUserDe
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken) throws UsernameNotFoundException {
         final var principal = authenticationToken.getPrincipal();
         if (principal instanceof Token token) {
-
             return usersService.loadUserByUsername(token.email());
         } else {
             return null;
