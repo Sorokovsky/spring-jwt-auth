@@ -41,4 +41,9 @@ public class AuthenticationController {
     public ResponseEntity<GetUserPayload> logout(@AuthenticationPrincipal UserModel user) {
         return ResponseEntity.ok(mapper.toGet(service.logout(user)));
     }
+
+    @PutMapping("refresh-tokens")
+    public ResponseEntity<GetUserPayload> refreshTokens() {
+        return ResponseEntity.ok(mapper.toGet(service.refreshTokens()));
+    }
 }

@@ -2,6 +2,7 @@ package org.sorokovsky.springsecurityjwtauth.service;
 
 import org.sorokovsky.springsecurityjwtauth.contract.LoginPayload;
 import org.sorokovsky.springsecurityjwtauth.contract.NewUserPayload;
+import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
 import org.sorokovsky.springsecurityjwtauth.exception.InvalidCredentialsException;
 import org.sorokovsky.springsecurityjwtauth.factory.AccessTokenFactory;
 import org.sorokovsky.springsecurityjwtauth.factory.RefreshTokenFactory;
@@ -22,6 +23,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final TokenStorage accessTokenStorage;
     private final TokenStorage refreshTokenStorage;
+    private final TokenDeserializer refreshTokenDeserializer;
 
     public AuthenticationService(
             @Qualifier("jws-serializer")
@@ -35,7 +37,9 @@ public class AuthenticationService {
             @Qualifier("bearer-storage")
             TokenStorage accessTokenStorage,
             @Qualifier("cookie-storage")
-            TokenStorage refreshTokenStorage
+            TokenStorage refreshTokenStorage,
+            @Qualifier("jwe-deserializer")
+            TokenDeserializer refTokenDeserializer
     ) {
         this.accessTokenSerializer = accessTokenSerializer;
         this.refreshTokenSerializer = refreshTokenSerializer;
@@ -45,6 +49,7 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
         this.accessTokenStorage = accessTokenStorage;
         this.refreshTokenStorage = refreshTokenStorage;
+        this.refreshTokenDeserializer = refTokenDeserializer;
     }
 
     public UserModel register(NewUserPayload newUser) {
@@ -64,6 +69,15 @@ public class AuthenticationService {
     public UserModel logout(@AuthenticationPrincipal UserModel user) {
         accessTokenStorage.clear();
         refreshTokenStorage.clear();
+        return user;
+    }
+
+    public UserModel refreshTokens() {
+        final var stringRefreshToken = refreshTokenStorage.get().orElse(null);
+        if (stringRefreshToken == null) throw new InvalidCredentialsException();
+        final var refreshToken = refreshTokenDeserializer.apply(stringRefreshToken);
+        final var user = usersService.getByEmail(refreshToken.email()).orElseThrow(InvalidCredentialsException::new);
+        authenticate(user);
         return user;
     }
 
