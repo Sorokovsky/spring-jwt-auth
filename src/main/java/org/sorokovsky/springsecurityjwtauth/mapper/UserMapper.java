@@ -1,6 +1,7 @@
 package org.sorokovsky.springsecurityjwtauth.mapper;
 
 import lombok.RequiredArgsConstructor;
+import org.sorokovsky.springsecurityjwtauth.contract.GetUserPayload;
 import org.sorokovsky.springsecurityjwtauth.contract.NewUserPayload;
 import org.sorokovsky.springsecurityjwtauth.contract.UpdateUserPayload;
 import org.sorokovsky.springsecurityjwtauth.entity.UserEntity;
@@ -70,5 +71,9 @@ public class UserMapper {
         } else {
             return oldString;
         }
+    }
+
+    public GetUserPayload toGet(UserModel user) {
+        return new GetUserPayload(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getMiddleName());
     }
 }

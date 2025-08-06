@@ -3,7 +3,6 @@ package org.sorokovsky.springsecurityjwtauth.service;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -16,15 +15,24 @@ import java.util.stream.Stream;
 
 @Service
 @RequestScope
-@RequiredArgsConstructor
 @Qualifier("cookie-storage")
 public class CookieTokenStorage implements TokenStorage {
     private static final String COOKIE_NAME = "__Host-o9uJOloVn7IBYwYoqPWZHnhqVEbNavAC";
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
-    @Qualifier("refresh-lifetime")
     private final Duration lifetime;
+
+    public CookieTokenStorage(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @Qualifier("refresh-lifetime")
+            Duration lifetime
+    ) {
+        this.request = request;
+        this.response = response;
+        this.lifetime = lifetime;
+    }
 
     @Override
     public Optional<String> get() {

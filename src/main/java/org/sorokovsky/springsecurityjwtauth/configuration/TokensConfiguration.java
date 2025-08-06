@@ -71,12 +71,12 @@ public class TokensConfiguration {
     }
 
     @Bean
-    public JWEEncrypter jweEncrypter(@Value("${token.encryption-key}") String encryptionKey) throws ParseException, JOSEException {
+    public JWEEncrypter jweEncrypter(@Value("${token.encrypting-key}") String encryptionKey) throws ParseException, JOSEException {
         return new DirectEncrypter(OctetSequenceKey.parse(encryptionKey));
     }
 
     @Bean
-    public JWEDecrypter jweDecrypter(@Value("${token.encryption-key}") String encryptionKey) throws ParseException, JOSEException {
+    public JWEDecrypter jweDecrypter(@Value("${token.encrypting-key}") String encryptionKey) throws ParseException, JOSEException {
         return new DirectDecrypter(OctetSequenceKey.parse(encryptionKey));
     }
 

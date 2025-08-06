@@ -11,8 +11,8 @@ import org.sorokovsky.springsecurityjwtauth.exception.TokenNotSerializedExceptio
 @Setter
 public class JweTokenSerializer extends JwtTokenSerializer {
     private final JWEEncrypter encrypter;
-    private EncryptionMethod encryptionMethod = EncryptionMethod.A128GCM;
-    private JWEAlgorithm algorithm = JWEAlgorithm.A192KW;
+    private EncryptionMethod encryptionMethod = EncryptionMethod.A192GCM;
+    private JWEAlgorithm algorithm = JWEAlgorithm.DIR;
 
     @Override
     public String apply(Token token) {
