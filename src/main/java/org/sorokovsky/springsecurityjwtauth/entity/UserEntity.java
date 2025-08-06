@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class UserEntity extends BaseEntity {
-    @Column
-    String middleName = "";
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)
@@ -25,4 +23,6 @@ public class UserEntity extends BaseEntity {
     private String firstName = "";
     @Column
     private String lastName = "";
+    @Column
+    String middleName = "";
 }
