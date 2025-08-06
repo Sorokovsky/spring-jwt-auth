@@ -32,16 +32,13 @@ public class JwtAuthenticationConfigurer implements SecurityConfigurer<DefaultSe
     }
 
     @Override
-    public void configure(HttpSecurity builder) throws Exception {
+    public void configure(HttpSecurity builder) {
         final var authenticationManager = builder.getSharedObject(AuthenticationManager.class);
         final var converter = new JwtAccessTokenToAuthenticationConvertor(accessTokenDeserializer, accessTokenStorage);
         final var filter = new AuthenticationFilter(authenticationManager, converter);
         filter.setFailureHandler(authenticationEntryPoint::commence);
         filter.setSuccessHandler((_, _, _) -> {
         });
-        builder.exceptionHandling(configuration -> configuration
-                .authenticationEntryPoint(authenticationEntryPoint)
-        );
         builder.addFilterBefore(filter, BasicAuthenticationFilter.class);
     }
 }
