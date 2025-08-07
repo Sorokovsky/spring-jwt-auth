@@ -29,7 +29,7 @@ public class AuthenticationController {
     public ResponseEntity<Void> register(@Valid @RequestBody NewUserPayload newUser, UriComponentsBuilder uriBuilder) {
         service.register(newUser);
         return ResponseEntity
-                .created(uriBuilder.pathSegment("authentication/me").build().toUri()).build();
+                .created(uriBuilder.fragment("/me").build().toUri()).build();
     }
 
     @PutMapping("login")
@@ -39,14 +39,8 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("logout")
-    public ResponseEntity<Void> logout() {
-        service.logout();
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("refresh-tokens")
-    public ResponseEntity<Void> refreshTokens() {
-        service.refreshTokens();
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserModel user) {
+        service.logout(user);
         return ResponseEntity.noContent().build();
     }
 }

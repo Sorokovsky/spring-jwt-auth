@@ -1,84 +1,53 @@
 package org.sorokovsky.springsecurityjwtauth.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.sorokovsky.springsecurityjwtauth.contract.LoginPayload;
 import org.sorokovsky.springsecurityjwtauth.contract.NewUserPayload;
-import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
 import org.sorokovsky.springsecurityjwtauth.exception.InvalidCredentialsException;
-import org.sorokovsky.springsecurityjwtauth.factory.AccessTokenFactory;
-import org.sorokovsky.springsecurityjwtauth.factory.RefreshTokenFactory;
 import org.sorokovsky.springsecurityjwtauth.model.UserModel;
-import org.sorokovsky.springsecurityjwtauth.serializer.TokenSerializer;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Service
+@RequiredArgsConstructor
+@RequestScope
 public class AuthenticationService {
-    private final TokenSerializer accessTokenSerializer;
-    private final TokenSerializer refreshTokenSerializer;
-    private final AccessTokenFactory accessTokenFactory;
-    private final RefreshTokenFactory refreshTokenFactory;
     private final UsersService usersService;
     private final PasswordEncoder passwordEncoder;
-    private final TokenStorage accessTokenStorage;
-    private final TokenStorage refreshTokenStorage;
-    private final TokenDeserializer refreshTokenDeserializer;
-
-    public AuthenticationService(
-            @Qualifier("jws-serializer")
-            TokenSerializer accessTokenSerializer,
-            @Qualifier("jwe-serializer")
-            TokenSerializer refreshTokenSerializer,
-            AccessTokenFactory accessTokenFactory,
-            RefreshTokenFactory refreshTokenFactory,
-            UsersService usersService,
-            PasswordEncoder passwordEncoder,
-            @Qualifier("bearer-storage")
-            TokenStorage accessTokenStorage,
-            @Qualifier("cookie-storage")
-            TokenStorage refreshTokenStorage,
-            @Qualifier("jwe-deserializer")
-            TokenDeserializer refTokenDeserializer
-    ) {
-        this.accessTokenSerializer = accessTokenSerializer;
-        this.refreshTokenSerializer = refreshTokenSerializer;
-        this.accessTokenFactory = accessTokenFactory;
-        this.refreshTokenFactory = refreshTokenFactory;
-        this.usersService = usersService;
-        this.passwordEncoder = passwordEncoder;
-        this.accessTokenStorage = accessTokenStorage;
-        this.refreshTokenStorage = refreshTokenStorage;
-        this.refreshTokenDeserializer = refTokenDeserializer;
-    }
+    private final AuthenticationManager authenticationManager;
+    private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
 
     public void register(NewUserPayload newUser) {
         final var created = usersService.create(newUser);
-        authenticate(created);
+        authenticate(created.getEmail(), newUser.password());
     }
 
     public void login(LoginPayload payload) {
-        final var candidate = usersService.getByEmail(payload.email()).orElseThrow(() -> new InvalidCredentialsException("Invalid email"));
-        if (!passwordEncoder.matches(payload.password(), candidate.getPassword())) throw new InvalidCredentialsException("Invalid password");
-        authenticate(candidate);
+        final var invalidEmailException = new InvalidCredentialsException("Invalid email");
+        final var invalidPasswordException = new InvalidCredentialsException("Invalid password");
+        final var candidate = usersService.getByEmail(payload.email()).orElseThrow(() -> invalidEmailException);
+        if (!passwordEncoder.matches(payload.password(), candidate.getPassword())) throw invalidPasswordException;
+        authenticate(payload.email(), payload.password());
     }
 
-    public void logout() {
-        accessTokenStorage.clear();
-        refreshTokenStorage.clear();
+    public void logout(UserModel user) {
+        authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(user.getEmail(), user.getPassword()));
     }
 
-    public void refreshTokens() {
-        final var stringRefreshToken = refreshTokenStorage.get().orElse(null);
-        if (stringRefreshToken == null) throw new InvalidCredentialsException();
-        final var refreshToken = refreshTokenDeserializer.apply(stringRefreshToken);
-        final var user = usersService.getByEmail(refreshToken.email()).orElseThrow(InvalidCredentialsException::new);
-        authenticate(user);
-    }
+    private void authenticate(String email, String password) {
+        final var requestToken = UsernamePasswordAuthenticationToken.unauthenticated(email, password);
+        final var token = authenticationManager.authenticate(requestToken);
+        SecurityContextHolder.getContext().setAuthentication(token);
 
-    private void authenticate(UserModel user) {
-        final var refreshToken = refreshTokenFactory.apply(user);
-        final var accessToken = accessTokenFactory.apply(refreshToken);
-        accessTokenStorage.set(accessTokenSerializer.apply(accessToken));
-        refreshTokenStorage.set(refreshTokenSerializer.apply(refreshToken));
+        sessionAuthenticationStrategy.onAuthentication(token, request, response);
     }
 }
