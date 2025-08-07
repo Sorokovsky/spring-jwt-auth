@@ -28,7 +28,7 @@ public class AuthenticationService {
 
     public void register(NewUserPayload newUser) {
         final var created = usersService.create(newUser);
-        authenticate(created.getEmail(), newUser.password());
+        authenticate(created);
     }
 
     public void login(LoginPayload payload) {
@@ -36,18 +36,16 @@ public class AuthenticationService {
         final var invalidPasswordException = new InvalidCredentialsException("Invalid password");
         final var candidate = usersService.getByEmail(payload.email()).orElseThrow(() -> invalidEmailException);
         if (!passwordEncoder.matches(payload.password(), candidate.getPassword())) throw invalidPasswordException;
-        authenticate(payload.email(), payload.password());
+        authenticate(candidate);
     }
 
     public void logout(UserModel user) {
         authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(user.getEmail(), user.getPassword()));
     }
 
-    private void authenticate(String email, String password) {
-        final var requestToken = UsernamePasswordAuthenticationToken.unauthenticated(email, password);
-        final var token = authenticationManager.authenticate(requestToken);
-        SecurityContextHolder.getContext().setAuthentication(token);
-
-        sessionAuthenticationStrategy.onAuthentication(token, request, response);
+    private void authenticate(UserModel user) {
+        final var requestToken = UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(requestToken);
+        sessionAuthenticationStrategy.onAuthentication(requestToken, request, response);
     }
 }

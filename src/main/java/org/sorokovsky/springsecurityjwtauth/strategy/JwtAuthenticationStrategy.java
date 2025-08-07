@@ -30,7 +30,6 @@ public class JwtAuthenticationStrategy implements SessionAuthenticationStrategy 
     public void onAuthentication(
             Authentication authentication, HttpServletRequest request, HttpServletResponse response)
             throws SessionAuthenticationException {
-        System.out.println(authentication);
         if (authentication instanceof UsernamePasswordAuthenticationToken userAuthentication) {
             final var principal = userAuthentication.getPrincipal();
             if (principal instanceof UserModel user) {
