@@ -65,15 +65,15 @@ public class UserMapper {
         return merged;
     }
 
+    public GetUserPayload toGet(UserModel user) {
+        return new GetUserPayload(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getMiddleName());
+    }
+
     private String chooseString(String oldString, String newString) {
         if (newString != null && !newString.isBlank()) {
             return newString;
         } else {
             return oldString;
         }
-    }
-
-    public GetUserPayload toGet(UserModel user) {
-        return new GetUserPayload(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getMiddleName());
     }
 }
