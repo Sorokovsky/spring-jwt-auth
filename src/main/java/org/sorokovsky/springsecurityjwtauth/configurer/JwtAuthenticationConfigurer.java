@@ -13,6 +13,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,9 +26,14 @@ public class JwtAuthenticationConfigurer implements SecurityConfigurer<DefaultSe
 
     @Override
     public void init(HttpSecurity builder) throws Exception {
-        builder.exceptionHandling(configurer -> configurer
-                .authenticationEntryPoint(authenticationEntryPoint)
-        );
+        builder
+                .exceptionHandling(configurer -> configurer
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                )
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(new CookieCsrfTokenRepository())
+                        .ignoringRequestMatchers("/authentication/**")
+                );
     }
 
     @Override
