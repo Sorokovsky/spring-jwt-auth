@@ -9,7 +9,6 @@ import org.sorokovsky.springsecurityjwtauth.factory.RefreshTokenFactory;
 import org.sorokovsky.springsecurityjwtauth.model.UserModel;
 import org.sorokovsky.springsecurityjwtauth.serializer.TokenSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +64,7 @@ public class AuthenticationService {
         return candidate;
     }
 
-    public UserModel logout(@AuthenticationPrincipal UserModel user) {
+    public UserModel logout(UserModel user) {
         accessTokenStorage.clear();
         refreshTokenStorage.clear();
         return user;
