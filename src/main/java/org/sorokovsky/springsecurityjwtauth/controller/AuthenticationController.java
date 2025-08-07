@@ -26,24 +26,27 @@ public class AuthenticationController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<GetUserPayload> register(@Valid @RequestBody NewUserPayload newUser, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Void> register(@Valid @RequestBody NewUserPayload newUser, UriComponentsBuilder uriBuilder) {
+        service.register(newUser);
         return ResponseEntity
-                .created(uriBuilder.pathSegment("authentication/me").build().toUri())
-                .body(mapper.toGet(service.register(newUser)));
+                .created(uriBuilder.pathSegment("authentication/me").build().toUri()).build();
     }
 
     @PutMapping("login")
-    public ResponseEntity<GetUserPayload> login(@Valid @RequestBody LoginPayload payload) {
-        return ResponseEntity.ok(mapper.toGet(service.login(payload)));
+    public ResponseEntity<Void> login(@Valid @RequestBody LoginPayload payload) {
+        service.login(payload);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("logout")
-    public ResponseEntity<GetUserPayload> logout(@AuthenticationPrincipal UserModel user) {
-        return ResponseEntity.ok(mapper.toGet(service.logout(user)));
+    public ResponseEntity<Void> logout() {
+        service.logout();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("refresh-tokens")
-    public ResponseEntity<GetUserPayload> refreshTokens() {
-        return ResponseEntity.ok(mapper.toGet(service.refreshTokens()));
+    public ResponseEntity<Void> refreshTokens() {
+        service.refreshTokens();
+        return ResponseEntity.noContent().build();
     }
 }

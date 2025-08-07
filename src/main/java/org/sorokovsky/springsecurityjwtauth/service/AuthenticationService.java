@@ -51,32 +51,28 @@ public class AuthenticationService {
         this.refreshTokenDeserializer = refTokenDeserializer;
     }
 
-    public UserModel register(NewUserPayload newUser) {
+    public void register(NewUserPayload newUser) {
         final var created = usersService.create(newUser);
         authenticate(created);
-        return created;
     }
 
-    public UserModel login(LoginPayload payload) {
+    public void login(LoginPayload payload) {
         final var candidate = usersService.getByEmail(payload.email()).orElseThrow(() -> new InvalidCredentialsException("Invalid email"));
         if (!passwordEncoder.matches(payload.password(), candidate.getPassword())) throw new InvalidCredentialsException("Invalid password");
         authenticate(candidate);
-        return candidate;
     }
 
-    public UserModel logout(UserModel user) {
+    public void logout() {
         accessTokenStorage.clear();
         refreshTokenStorage.clear();
-        return user;
     }
 
-    public UserModel refreshTokens() {
+    public void refreshTokens() {
         final var stringRefreshToken = refreshTokenStorage.get().orElse(null);
         if (stringRefreshToken == null) throw new InvalidCredentialsException();
         final var refreshToken = refreshTokenDeserializer.apply(stringRefreshToken);
         final var user = usersService.getByEmail(refreshToken.email()).orElseThrow(InvalidCredentialsException::new);
         authenticate(user);
-        return user;
     }
 
     private void authenticate(UserModel user) {
