@@ -40,9 +40,6 @@ public class SecurityConfiguration {
                         .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(new BearerAuthenticationEntryPoint())
-                )
                 .sessionManagement(configuration -> configuration
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
