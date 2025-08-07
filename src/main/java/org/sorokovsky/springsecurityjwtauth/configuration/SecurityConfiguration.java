@@ -34,7 +34,7 @@ public class SecurityConfiguration {
         jwtAccessConfigurer.setAuthenticationEntryPoint(new BearerAuthenticationEntryPoint());
         http
                 .authorizeHttpRequests(configuration -> configuration
-                        .requestMatchers("/authentication/register", "/authentication/login", "authentication/refresh-tokens").anonymous()
+                        .requestMatchers("/authentication/register", "/authentication/login", "/authentication/refresh-tokens").anonymous()
                         .requestMatchers("/authentication/get-me", "/authentication/logout").authenticated()
                         .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
