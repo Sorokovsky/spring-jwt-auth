@@ -52,7 +52,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(PreAuthenticationUserDetailsService preAuthenticationUserDetailsService) {
+    public AuthenticationProvider authenticationProvider(
+            PreAuthenticationUserDetailsService preAuthenticationUserDetailsService) {
         final var provider = new PreAuthenticatedAuthenticationProvider();
         provider.setPreAuthenticatedUserDetailsService(preAuthenticationUserDetailsService);
         return provider;
