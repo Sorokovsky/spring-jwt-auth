@@ -59,9 +59,8 @@ public class AuthenticationService {
     }
 
     public UserModel login(LoginPayload payload) {
-        final var exception = new InvalidCredentialsException();
-        final var candidate = usersService.getByEmail(payload.email()).orElseThrow(() -> exception);
-        if (!passwordEncoder.matches(payload.password(), candidate.getPassword())) throw exception;
+        final var candidate = usersService.getByEmail(payload.email()).orElseThrow(() -> new InvalidCredentialsException("Invalid email"));
+        if (!passwordEncoder.matches(payload.password(), candidate.getPassword())) throw new InvalidCredentialsException("Invalid password");
         authenticate(candidate);
         return candidate;
     }

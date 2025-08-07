@@ -9,6 +9,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  messages:
+    basename: messages
+    encoding: UTF-8
+  web:
+    locale: en
+    locale-resolver: accept_header
 token:
   signing-key: '{"kty": "oct","alg": "HS256","k": "w?1pz%L@*XRWr;@YNSzESq=(&,2REh_j_V]Q?A$4$xBVyGZw+:BYGfrD((vF(JQK6jQy4qqw5cvE268}BuE=Kk62B=0-8NDvNALj?:+!{475G%H]/yfPQRw+.j[:=Pf&BY,6+mj7J9(xX5+k@:f)iXJE/.V.SfF(1h6@et@ekS$=k70Y=_e*,-[y3)L1UJ7NExNjE]jyp0/wKn$KUw=A12K/[A=R-aw]2}&{&-y23jD2hy-/)4zyF{X)mh3y[?B$"}'
   encrypting-key: '{"kty": "oct","alg": "A192GCM","k": "yNuNBJCo9ecNVG9cs4usPWU3sdfghjjk"}'

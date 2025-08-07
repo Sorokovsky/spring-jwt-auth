@@ -35,7 +35,6 @@ public class JwtAuthenticationConfigurer implements SecurityConfigurer<DefaultSe
         final var authenticationManager = builder.getSharedObject(AuthenticationManager.class);
         final var converter = new JwtAccessTokenToAuthenticationConvertor(accessTokenDeserializer, accessTokenStorage);
         final var filter = new AuthenticationFilter(authenticationManager, converter);
-        filter.setFailureHandler(authenticationEntryPoint::commence);
         filter.setSuccessHandler((_, _, _) -> {
         });
         builder.addFilterBefore(filter, BasicAuthenticationFilter.class);
