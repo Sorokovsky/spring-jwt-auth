@@ -3,6 +3,8 @@ package org.sorokovsky.springsecurityjwtauth.configurer;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sorokovsky.springsecurityjwtauth.convertor.JwtAccessTokenToAuthenticationConvertor;
 import org.sorokovsky.springsecurityjwtauth.deserializer.TokenDeserializer;
 import org.sorokovsky.springsecurityjwtauth.service.TokenStorage;
@@ -19,10 +21,11 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @AllArgsConstructor
 @Setter
 public class JwtAuthenticationConfigurer implements SecurityConfigurer<DefaultSecurityFilterChain, HttpSecurity> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationConfigurer.class);
+
     private TokenDeserializer accessTokenDeserializer;
     private TokenStorage accessTokenStorage;
-    private AuthenticationEntryPoint authenticationEntryPoint = (_, _, _) -> {
-    };
+    private AuthenticationEntryPoint authenticationEntryPoint = (_, _, _) -> {};
 
     @Override
     public void init(HttpSecurity builder) throws Exception {
@@ -41,7 +44,8 @@ public class JwtAuthenticationConfigurer implements SecurityConfigurer<DefaultSe
         final var authenticationManager = builder.getSharedObject(AuthenticationManager.class);
         final var converter = new JwtAccessTokenToAuthenticationConvertor(accessTokenDeserializer, accessTokenStorage);
         final var filter = new AuthenticationFilter(authenticationManager, converter);
-        filter.setSuccessHandler((_, _, _) -> {
+        filter.setSuccessHandler((_, _, authentication) -> {
+            LOGGER.info("{} is authenticated successfully.", authentication.getPrincipal());
         });
         builder.addFilterBefore(filter, BasicAuthenticationFilter.class);
     }
