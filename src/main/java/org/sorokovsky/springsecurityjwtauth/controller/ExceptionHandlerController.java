@@ -8,9 +8,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 @ControllerAdvice
@@ -19,6 +21,17 @@ public class ExceptionHandlerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlerController.class);
 
     private final MessageSource messageSource;
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<HashMap<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        final var errors = new HashMap<String, String>();
+        exception.getBindingResult().getFieldErrors().forEach((error) -> {
+            final var errorName = error.getField();
+            final var message = error.getDefaultMessage();
+            errors.put(errorName, message);
+        });
+        return ResponseEntity.badRequest().body(errors);
+    }
 
     @ExceptionHandler({InvalidCredentialsException.class})
     public ResponseEntity<String> handleInvalidCredentialsException(
