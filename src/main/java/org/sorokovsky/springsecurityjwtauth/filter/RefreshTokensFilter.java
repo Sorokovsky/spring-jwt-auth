@@ -16,6 +16,7 @@ import org.sorokovsky.springsecurityjwtauth.service.UsersService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class RefreshTokensFilter extends OncePerRequestFilter {
             }
             if (user != null) {
                 authenticationService.authenticate(user.getEmail(), user.getPassword());
+                CsrfFilter.skipRequest(request);
             }
         } else {
             response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "UsernameAndPassword");

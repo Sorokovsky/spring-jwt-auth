@@ -77,9 +77,13 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(new CookieCsrfTokenRepository())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        .ignoringRequestMatchers(
+                                "/authentication/register",
+                                "/authentication/login",
+                                "/authentication/logout"
+                        )
                         .sessionAuthenticationStrategy((_, _, _) -> {
                         })
-                        .disable()
                 );
         http.apply(jwtAccessConfigurer);
         http.apply(refreshTokensConfigurer);
