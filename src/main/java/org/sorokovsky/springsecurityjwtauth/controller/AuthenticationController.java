@@ -39,8 +39,8 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("logout")
-    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserModel user) {
-        service.logout(user);
+    public ResponseEntity<Void> logout() {
+        service.logout();
         return ResponseEntity.noContent().build();
     }
 }

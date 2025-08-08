@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sorokovsky.springsecurityjwtauth.factory.AccessTokenFactory;
 import org.sorokovsky.springsecurityjwtauth.factory.RefreshTokenFactory;
-import org.sorokovsky.springsecurityjwtauth.model.UserModel;
 import org.sorokovsky.springsecurityjwtauth.serializer.TokenSerializer;
 import org.sorokovsky.springsecurityjwtauth.service.TokenStorage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,14 +30,11 @@ public class JwtAuthenticationStrategy implements SessionAuthenticationStrategy 
             Authentication authentication, HttpServletRequest request, HttpServletResponse response)
             throws SessionAuthenticationException {
         if (authentication instanceof UsernamePasswordAuthenticationToken userAuthentication) {
-            final var principal = userAuthentication.getPrincipal();
-            if (principal instanceof UserModel user) {
-                final var refreshToken = refreshTokenFactory.apply(user);
-                final var accessToken = accessTokenFactory.apply(refreshToken);
-                accessTokenStorage.set(accessTokenSerializer.apply(accessToken));
-                refreshTokenStorage.set(refreshTokenSerializer.apply(refreshToken));
-                LOGGER.info("Tokens of {} was stored.", user);
-            }
+            final var refreshToken = refreshTokenFactory.apply(userAuthentication);
+            final var accessToken = accessTokenFactory.apply(refreshToken);
+            accessTokenStorage.set(accessTokenSerializer.apply(accessToken));
+            refreshTokenStorage.set(refreshTokenSerializer.apply(refreshToken));
+            LOGGER.info("Tokens of {} was stored.", authentication);
         }
     }
 }
